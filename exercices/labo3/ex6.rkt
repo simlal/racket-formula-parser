@@ -9,3 +9,11 @@
     `((a . 1) (b . 2) (c . 3)))
 
 (keys a-list-cons)
+
+(define (value key  alist)
+    (cond
+        [(null? alist) alist]
+        [(eq? key (caar alist)) (cdar alist)]
+        [else (value key (cdr alist))]))
+
+(value `c a-list-cons)
