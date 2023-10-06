@@ -21,7 +21,7 @@
 
 ; retourne une formule prefixee a partir d'une formule quelconque
 (define (prefixee formule)
-    (formule))
+    (creer-formule formule))
 
 ; creer une formule a partir d'une expression infixe
 (define (creer-formule exp-infixe)
@@ -52,23 +52,34 @@
 (define (operande2 formule)
     (formule))
 
+;;;;; Fonctions associees a environment d'exe ;;;;;
+
+; *OK
 ; creer un environnement vide (a remplir avec liste de paires (variable, valeur))
-; TODO CHECK
 (define (creer-env)
     (list))
 
+
+; *OK
 ; lier variable a valeur dans l'environnement
-; TODO CHECK
+; Utilisation de pairs d'associations
 (define (lier variable valeur env)
-    (variable valeur env))
+    (cons (cons variable valeur) env))
 
 ; retourne la valeur associee a la variable dans l'environnement
 ; TODO CHECK
 (define (valeur variable env)
-    (variable env))
+    (cond
+        [(null? env) (display (format "Variable ~v pas dans environement\n" variable))]
+        [(equal? variable (caar env)) (cdar env)]
+        [else (valeur variable (cdr env))]))
 
+; *OK
 ; verifie si la variable est definie dans l'environnement
-; TODO CHECK
 (define (definie? variable env)
-    (variable env))
+        (cond
+            [(null? env) #f]
+            [(equal? variable (caar env)) #t]
+            [else (definie? variable (cdr env))]))
+
 
