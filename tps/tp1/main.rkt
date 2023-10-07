@@ -28,20 +28,28 @@
 (define (calculer formule env)
     (formule env))
 
-; retourne une formule prefixee a partir d'une formule quelconque
+; retourne une formule prefixee a partir d'une formule (construit a partir exp-infixe)
 (define (prefixee formule)
-    (creer-formule formule))
+    (cond
+        [(null? formule) `()]
+        [(list? formule)]))
 
 ; creer une formule (sous format arbre binaire) a partir d'une expression infixe
 (define (creer-formule exp-infixe)
   (cond
-    [(null? exp-infixe) '()]
+    [(null? exp-infixe) `()]
+    ; creer une feuille lors de l'appel recursif
     [(or (nombre? exp-infixe) (variable? exp-infixe)) 
-     (creer-feuille exp-infixe)]
+        (creer-feuille exp-infixe)]
+    ; creer feuille pour expression avec 1 seul element
+    [(and (list? exp-infixe) (= (length exp-infixe) 1))
+        (creer-feuille (car exp-infixe))]
+    ; construction arbres avec appel recursif
     [(list? exp-infixe)
-     (creer-arbre (cadr exp-infixe)
-                  (creer-formule (car exp-infixe))
-                  (creer-formule (caddr exp-infixe)))]))
+        (creer-arbre (cadr exp-infixe)
+            (creer-formule (car exp-infixe))
+            (creer-formule (caddr exp-infixe)))]))
+    
 
 ;;;;;; Creation d'arbres binaires ;;;;;
 
