@@ -9,12 +9,19 @@
 (provide operande1)
 (provide operande2)
 
+(provide creer-arbre)
+(provide creer-feuille)
+(provide fils-g)
+(provide fils-d)
+(provide feuille?)
+(provide second-arbre)
+(provide trois-arbre)
+
 (provide creer-env)
 (provide lier)
 (provide valeur)
 (provide definie?)
 
-; calculer : formule env -> nombre
 ; calcule la valeur de la formule en utilisant les valeurs dans l'environnement
 (define (calculer formule env)
     (formule env))
@@ -27,15 +34,54 @@
 (define (creer-formule exp-infixe)
     (exp-infixe))
 
+;;;;;; Creation d'arbres binaires ;;;;;
+
+; Creation d'un arbre avec operande
+(define (creer-arbre etiquette fils-g fils-d)
+    (list etiquette fils-g fils-d))
+
+; Creation feuille (arbre avec 2 fils vide)
+(define (creer-feuille etiquette)
+    (list etiquette `() `()))
+
+; Helper pour valider structure vide
+(define (arbre-vide? arbre)
+    (null? arbre))
+
+; Selecteur lors du traversage de l'arbre
+(define (second-arbre arbre)
+    (cadr arbre))
+(define (trois-arbre arbre)
+    (caddr arbre))
+
+; Chercher le fils gauche de l'arbre ou feuille 
+(define (fils-g arbre)
+    (if (not (arbre-vide? arbre))
+        (second-arbre arbre)
+        `()))
+; Chercher le fils droit de l'arbre ou feuille 
+(define (fils-d arbre)
+    (if (not (arbre-vide? arbre))
+        (trois-arbre arbre)
+        `()))
+
+; Feuille doit contenir un ele mais des liste vides pour chacun de ses "fils"
+(define (feuille? arbre)
+    (and 
+        (not (arbre-vide? arbre))
+        (null? (fils-g arbre))
+        (null? (fils-d arbre))))
+
+;;;;;; Fonctions helpers pour representer la formule ;;;;;
+; Representation sous arbre binaire (noeud=operateur, feuille=operande)
+; !VERIF
 ; verifie si la formule est un nombre
 (define (nombre? formule)
     (number? formule))
-
+; !VERIF
 ; verifie si la formule est une variable
 (define (variable? formule)
     (symbol? formule))
-
-; Representation sous arbre binaire (noeud=operateur, feuille=operande)
 
 ; retourne l'operateur / noeud d'une formule
 ; TODO CHECK FEUILLE OU NOEUD
@@ -52,12 +98,12 @@
 (define (operande2 formule)
     (formule))
 
-;;;;; Fonctions associees a environment d'exe ;;;;;
+;;;;; Fonctions associees a environment d'execution ;;;;;
 
 ; *OK
 ; creer un environnement vide (a remplir avec liste de paires (variable, valeur))
 (define (creer-env)
-    (list))
+    (`()))
 
 
 ; *OK
@@ -67,7 +113,7 @@
     (cons (cons variable valeur) env))
 
 ; retourne la valeur associee a la variable dans l'environnement
-; TODO CHECK
+; *OK
 (define (valeur variable env)
     (cond
         [(null? env) (display (format "Variable ~v pas dans environement\n" variable))]
