@@ -14,6 +14,7 @@
 (provide fils-g)
 (provide fils-d)
 (provide feuille?)
+(provide noeud-arbre)
 (provide second-arbre)
 (provide trois-arbre)
 
@@ -49,6 +50,8 @@
     (null? arbre))
 
 ; Selecteur lors du traversage de l'arbre
+(define (noeud-arbre arbre)
+    (car arbre))
 (define (second-arbre arbre)
     (cadr arbre))
 (define (trois-arbre arbre)
@@ -74,53 +77,50 @@
 
 ;;;;;; Fonctions helpers pour representer la formule ;;;;;
 ; Representation sous arbre binaire (noeud=operateur, feuille=operande)
-; !VERIF
 ; verifie si la formule est un nombre
 (define (nombre? formule)
     (number? formule))
-; !VERIF
 ; verifie si la formule est une variable
 (define (variable? formule)
     (symbol? formule))
 
 ; retourne l'operateur / noeud d'une formule
-; TODO CHECK FEUILLE OU NOEUD
 (define (operateur formule)
-    (formule))
+    (if (not (feuille? formule))
+        (noeud-arbre formule)
+        `()))
 
 ; retourne l'operande1 / feuille gauche d'une formule
-; TODO CHANGE
 (define (operande1 formule)
-    (formule))
+    (if (not (feuille? formule))
+        (fils-g formule)
+        `()))
 
 ; retourne l'operande2 / feuille droite d'une formule
-; TODO CHANGE
 (define (operande2 formule)
-    (formule))
+    (if (not (feuille? formule))
+        (fils-d formule)
+        `()))
 
 ;;;;; Fonctions associees a environment d'execution ;;;;;
 
-; *OK
 ; creer un environnement vide (a remplir avec liste de paires (variable, valeur))
 (define (creer-env)
     (`()))
 
 
-; *OK
 ; lier variable a valeur dans l'environnement
 ; Utilisation de pairs d'associations
 (define (lier variable valeur env)
     (cons (cons variable valeur) env))
 
 ; retourne la valeur associee a la variable dans l'environnement
-; *OK
 (define (valeur variable env)
     (cond
         [(null? env) (display (format "Variable ~v pas dans environement\n" variable))]
         [(equal? variable (caar env)) (cdar env)]
         [else (valeur variable (cdr env))]))
 
-; *OK
 ; verifie si la variable est definie dans l'environnement
 (define (definie? variable env)
         (cond
