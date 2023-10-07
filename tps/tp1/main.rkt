@@ -5,6 +5,7 @@
 (provide creer-formule)
 (provide nombre?)
 (provide variable?)
+(provide operateur?)
 (provide operateur)
 (provide operande1)
 (provide operande2)
@@ -31,9 +32,16 @@
 (define (prefixee formule)
     (creer-formule formule))
 
-; creer une formule a partir d'une expression infixe
+; creer une formule (sous format arbre binaire) a partir d'une expression infixe
 (define (creer-formule exp-infixe)
-    (exp-infixe))
+  (cond
+    [(null? exp-infixe) '()]
+    [(or (nombre? exp-infixe) (variable? exp-infixe)) 
+     (creer-feuille exp-infixe)]
+    [(list? exp-infixe)
+     (creer-arbre (cadr exp-infixe)
+                  (creer-formule (car exp-infixe))
+                  (creer-formule (caddr exp-infixe)))]))
 
 ;;;;;; Creation d'arbres binaires ;;;;;
 
@@ -84,23 +92,30 @@
 (define (variable? formule)
     (symbol? formule))
 
+; verifie si element est un operateur primitif
+(define (operateur? element)
+    (define operateurs `(+ - * /))
+    (if (member element operateurs) 
+        (car (member element operateurs))
+        #f))
+
 ; retourne l'operateur / noeud d'une formule
 (define (operateur formule)
     (if (not (feuille? formule))
         (noeud-arbre formule)
-        `()))
+        "Impossible trouver operateur d'une feuille"))
 
 ; retourne l'operande1 / feuille gauche d'une formule
 (define (operande1 formule)
     (if (not (feuille? formule))
-        (fils-g formule)
-        `()))
+        (noeud-arbre (fils-g formule))
+        "Impossible trouver operande1 d'une feuille"))
 
 ; retourne l'operande2 / feuille droite d'une formule
 (define (operande2 formule)
     (if (not (feuille? formule))
-        (fils-d formule)
-        `()))
+        (noeud-arbre (fils-d formule))
+        "Impossible trouver operande2 d'une feuille"))
 
 ;;;;; Fonctions associees a environment d'execution ;;;;;
 
@@ -129,3 +144,10 @@
             [else (definie? variable (cdr env))]))
 
 
+; (require racket/trace)
+; (trace creer-formule)
+; (trace creer-arbre)
+; (trace creer-feuille)
+; (define expinf1 `((1 + 2) * 3))
+
+; (creer-formule expinf1)
