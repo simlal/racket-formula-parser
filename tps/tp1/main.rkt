@@ -31,8 +31,12 @@
 ; retourne une formule prefixee a partir d'une formule (construit a partir exp-infixe)
 (define (prefixee formule)
     (cond
-        [(null? formule) `()]
-        [(list? formule)]))
+        [(feuille? formule) (noeud-arbre formule)]
+        [(operateur? (noeud-arbre formule)) 
+            (list (noeud-arbre formule) 
+                (prefixee (fils-g formule)) 
+                (prefixee (fils-d formule)))]
+        [else (list (noeud-arbre formule))]))
 
 ; creer une formule (sous format arbre binaire) a partir d'une expression infixe
 (define (creer-formule exp-infixe)
