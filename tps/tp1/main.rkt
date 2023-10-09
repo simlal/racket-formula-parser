@@ -26,16 +26,37 @@
 
 ; calcule la valeur de la formule en utilisant les valeurs dans l'environnement
 (define (calculer formule env)
-    (formule env))
+    (cond
+        ; gestion formule vide
+        [(null? formule) (display "Formule vide\n")]
+        ; remplacement operandes en fct environnement
+        [(nombre? formule) formule]
+        [(variable? formule) (valeur formule env)]
+        ; appel recursif pour traverser la formule et calculer la valeur en fct env
+        [(operateur? (operateur formule))
+            ((valeur (operateur formule) env) 
+                (calculer (operande1 formule) env) 
+                (calculer (operande2 formule) env))]
+        ; gestion si formule est un nombre ou variable unique (exp1-2)
+        [(feuille? formule)
+            (cond 
+                [(variable? (noeud-arbre formule))
+                    (calculer (valeur (noeud-arbre formule) env) env)]
+                [(nombre? (noeud-arbre formule)) (noeud-arbre formule)]
+                [else (display "Feuille invalide\n")])]))
+
 
 ; retourne une formule prefixee a partir d'une formule (construit a partir exp-infixe)
 (define (prefixee formule)
     (cond
+        ; fin recursion feuille pour operande
         [(feuille? formule) (noeud-arbre formule)]
+        ; creation arbre operateur avec 2 fils
         [(operateur? (noeud-arbre formule)) 
             (list (noeud-arbre formule) 
                 (prefixee (fils-g formule)) 
                 (prefixee (fils-d formule)))]
+        ; element simple (nombre ou variable)
         [else (list (noeud-arbre formule))]))
 
 ; creer une formule (sous format arbre binaire) a partir d'une expression infixe
@@ -120,20 +141,20 @@
 ; retourne l'operande1 / feuille gauche d'une formule
 (define (operande1 formule)
     (if (not (feuille? formule))
-        (noeud-arbre (fils-g formule))
+        (fils-g formule)
         "Impossible trouver operande1 d'une feuille"))
 
 ; retourne l'operande2 / feuille droite d'une formule
 (define (operande2 formule)
     (if (not (feuille? formule))
-        (noeud-arbre (fils-d formule))
+        (fils-d formule)
         "Impossible trouver operande2 d'une feuille"))
 
 ;;;;; Fonctions associees a environment d'execution ;;;;;
 
 ; creer un environnement vide (a remplir avec liste de paires (variable, valeur))
 (define (creer-env)
-    (`()))
+    `())
 
 
 ; lier variable a valeur dans l'environnement
@@ -155,11 +176,13 @@
             [(equal? variable (caar env)) #t]
             [else (definie? variable (cdr env))]))
 
-
 ; (require racket/trace)
-; (trace creer-formule)
-; (trace creer-arbre)
-; (trace creer-feuille)
-; (define expinf1 `((1 + 2) * 3))
-
-; (creer-formule expinf1)
+; (trace calculer)
+; ; (trace feuille?)
+; ; (trace variable?)
+; ; (trace nombre?)
+; ; (trace operateur)
+; ; (trace operateur?)
+; (trace operande1)
+; (trace operande2)
+; (trace valeur)
