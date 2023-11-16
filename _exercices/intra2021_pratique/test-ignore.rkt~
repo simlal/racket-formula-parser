@@ -1,0 +1,150 @@
+#lang racket
+; ***q1***
+(+ 45 (* 3 10) (/ 5 4))
+(/ 1 (sin (+ (* 4 12) 25)))
+
+; ***q2***
+(define a1 (/ (+ 20 30) (- 13 (* 2 9))))
+; (/ 50 (- 13 18))
+; (/ 50 -5)
+; -10
+a1
+
+(define Liste '(17 25 (a (b)) 18 32 (x (y)))) 
+; 25
+(cadr Liste)
+
+; `(a(b))
+(caddr Liste)
+
+; `((b))
+(cdaddr Liste)
+
+; 26
+((lambda(x) 
+   (cond [(= (remainder x 3) 0) (+ x 100)] 
+             [(= (remainder x 3) 1) (* x 2)] 
+           [else x])) 
+    13)
+
+; #f
+(let ([u (cons 1 2)]) (eq? u (cons 1 2)))
+; x = (* 10 a)
+; y = (- (* 10 a) 20)
+(define a2 4)
+(+ (* (* 10 a2) (* 10 a2)) (* (* 10 a2) (- (* 10 a2) 20)))
+
+; `((4 2 10) (5 31 11))
+(define nombres-pairs  (list 4 2 10)) 
+(define nombres-impairs (list 5 31 11)) 
+(list nombres-pairs nombres-impairs) 
+
+(define (mystere L) 
+  (if (null? L) 
+      null 
+      (let([doublet (car L)]) 
+          (cons (cond 
+                  [(equal? (car doublet) 'd) (* 2 (cdr doublet))] 
+                  [(equal? (car doublet) 't) (* 3 (cdr doublet))] 
+                  [(equal? (car doublet) 'q) (* 4 (cdr doublet))] 
+                  [else (cdr doublet)]) 
+                (mystere (cdr L)))))) 
+ 
+; `(30)
+(mystere '((t . 10)))
+
+; `(4 8 9 20 8)
+(mystere '((d . 2) (d . 4) (t . 3) (q . 5) (u . 8)))
+
+; `(#f #t #f #t #f #t)
+(map even? '(1 2 3 4 5 6))
+
+; `(2 4 6)
+(filter even? '(1 2 3 4 5 6))
+
+; ***q3***
+; rec-only
+(define (S-inv-r n)
+    (if (= n 0)
+        n
+        (+ (/ 1 n) (S-inv-r (- n 1)))))
+
+(S-inv-r 3)
+; tail rec
+(define (S-invr-i n)
+    (define (iter-i i res)
+        (if (> i n)
+            res
+            (iter-i (+ i 1) (+ res (/ 1 i)))))
+    (iter-i 1 0))
+(S-invr-i 3)
+
+; accum fct
+(define (accumuler comb fonct val-init a b) 
+    (define (interne i) 
+           (if (> i b)  
+            val-init 
+            (comb (fonct i) (interne  (+ i 1))))) 
+    (interne a))
+
+(define (s-inv n)
+    (accumuler + (lambda (x) (/ 1 x)) 0 1 n))
+(s-inv 3)
+(s-inv 5)
+
+; ***q4***
+; a - liste entiers croiss
+(define (enumerer-entiers-croiss a b)
+    (if (> a b)
+        `()
+        (cons a (enumerer-entiers-croiss (+ a 1) b))))
+(enumerer-entiers-croiss 5 12)
+
+; b - liste doublets
+(define liste-coeff `( 8 5 0 12 1))
+(define (poly-doublet L-coeff)
+    (map
+        (lambda(i a) (cons i a))
+            (enumerer-entiers-croiss 1 (length L-coeff))
+            L-coeff))
+
+(poly-doublet liste-coeff)
+
+; c - valeur polynome
+(define (f-poly L-coeff)
+  (lambda (x)
+    (apply + 
+           (map * 
+                L-coeff 
+                (map (lambda (i) (expt x i)) 
+                     (enumerer-entiers-croiss 0 
+                     (- (length L-coeff) 1)))))))
+((f-poly '(8 10)) 1) 
+((f-poly '(1 0 0 0)) 2) 
+((f-poly '(8 5 0 12 1)) 2)
+
+; d - degre poly
+(define (degre-poly L-coeff) 
+    (define (iter L cpt res) 
+        (if (null? L)
+            res
+            (if (equal? (car L) 0)
+                (+ (iter (cdr L) (+ 1 cpt) (+ 0 res)))
+                (+ (iter (cdr L) (+ 1 cpt) (+ cpt res))))))
+    (iter L-coeff 0 0 ))
+(degre-poly '(8 10))
+(degre-poly '(1 0 0 0)) 
+(degre-poly '(1 0 0 100))
+
+; ***q4-3***
+; add-poly-r
+(define (add-poly-r L1c L2c)
+  (cond ((null? L1c) L2c)
+        ((null? L2c) L1c)
+        ((> (car L1c) (car L2c)) 
+         (cons (car L1c) (add-poly-r (cdr L1c) (cdr L2c))))
+        (else 
+         (cons (car L2c) (add-poly-r (cdr L1c) (cdr L2c))))))
+
+
+(add-poly-r `(8 5 0 12 1) `(2 3))
