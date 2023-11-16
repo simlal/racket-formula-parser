@@ -19,7 +19,8 @@
             [else (error "Unknown request: MAKE-ACCOUNT" m)]))
     (define (payment amount account)
         (withdraw amount)
-        ((account `deposit) amount))
+        (begin (account `deposit) amount)
+            (format "payment of ~a $ complete" amount))
     dispatch)
 
 ;;; test ex1 ;;;
@@ -62,6 +63,16 @@
 
 ((compte3 `modify-code "good") "newgood")
 ((compte3 `balance "newgood"))
+(display "withdraw > balance")
+((compte3 `withdraw "newgood") 500)
+(display "transfer from secure c3 to non-secure to c1\n")
+((compte3 `payment "newgood") 100 compte1)
+(display "balance c3=")
+((compte3 `balance "newgood"))
+(display "balance c1=")
+((compte1 `balance))
+
+
 
 
 
